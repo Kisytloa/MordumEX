@@ -426,7 +426,8 @@ const SYS = [
      ['do','Pose-les du côté de l\'<b>orbe verte sur la mini-carte</b> : c\'est là que la 1re rupture de sol aura lieu, elle les fera toutes disparaître.']]],
   ['SYS','Jumper',97,'sys','Système','Jumper : A ou D',
     [['t0100','Prise du jumper, ici la touche est D']],
-    [['new','La touche du jumper n\'est <b>plus toujours A</b> : parfois c\'est <b>D</b>.'],
+    [['tip','Le jumper est un <b>grappin</b> placé sur les côtés de l\'arène : en appuyant sur la touche, il te fait traverser jusqu\'à l\'<b>autre côté</b>.'],
+     ['new','La touche du jumper n\'est <b>plus toujours A</b> : parfois c\'est <b>D</b>.'],
      ['do','Regarde la touche affichée <b>avant</b> d\'appuyer, à chaque fois.']]],
 ];
 
@@ -468,11 +469,11 @@ const MECHS = [
     [['tip','L\'hémisphère jaune devient <b class="r">rouge</b> ou <b class="b">bleu</b>.'],
      ['do','La couleur indiquée <b>entre</b>, l\'autre <b>reste dehors</b>.'],
      ['kill','8 orbes jaunes, une par joueur, te poursuivent. Si elle te touche, elle laisse une <b>flaque de 8 min</b>.'],
-     ['do','Utilise le <b>jumper</b> pour les semer plutôt que de marcher, puis ramasse les orbes de <b>ta couleur</b> (non ramassées, elles laissent aussi des flaques).']]],
+     ['do','Plutôt que de marcher, prends le <b>jumper</b> : le grappin te fait traverser l\'arène et les orbes te ratent. Ensuite, ramasse les orbes de <b>ta couleur</b> (non ramassées, elles laissent aussi des flaques).']]],
   ['×300','300',420,'nova','Supernova','1re Supernova',
     [['t0425','Le smash de la Supernova']],
     [['new','<b>Pas de contre possible</b>, contrairement à l\'original.'],
-     ['do','Prends le jumper <b>juste avant</b> l\'impact : tu esquives le smash puis l\'onde de choc.'],
+     ['do','Place-toi près d\'un jumper et prends-le <b>juste avant</b> l\'impact : la traversée de l\'arène te fait esquiver le smash puis l\'onde de choc.'],
      ['tip','Rythme : smash, esquive, puis esquive de l\'onde de choc.']]],
   ['×275','275',437,'mech','Méca','L\'enclume',
     [['t0440','Début de l\'enclume'],['t0460','Marteau tiré en arrière : prépare G']],
@@ -491,7 +492,7 @@ const MECHS = [
     [['tip','Orbes <b class="r">rouges à gauche</b>, <b class="b">bleus à droite</b>.'],
      ['new','Un <b>gros orbe</b> apparaît au centre.'],
      ['kill','S\'il atteint le boss, c\'est le <b>wipe</b>.'],
-     ['do','Les joueurs de la <b>même couleur</b> que le gros orbe prennent le jumper vers le côté opposé. Ceux de la couleur opposée se placent <b>devant le boss</b> pour le détruire.'],
+     ['do','Les joueurs de la <b>même couleur</b> que le gros orbe prennent le jumper pour passer de l\'autre côté de l\'arène. Ceux de la couleur opposée se placent <b>devant le boss</b> pour le détruire.'],
      ['do','Détruisez aussi tous les petits orbes (surtout en NM) pour que le boss n\'obtienne pas de bouclier.'],
      ['tip','Après la 2e rupture, le jumper peut être A ou D.']]],
   ['×180','180',548,'mech','Méca','Cases de couleur',
@@ -524,7 +525,7 @@ const MECHS = [
      ['do','Ensuite, passe sur la couleur critique et guard deux fois, puis éloigne-toi du centre.']]],
   ['<125','SN2',742,'nova','Supernova','2e Supernova',
     [['t0750','Zone visée hors du terrain (entourée)'],['t0775','Impact de la Supernova']],
-    [['do','Dès sa <b>1re charge</b>, prends le jumper.'],
+    [['do','Dès sa <b>1re charge</b>, prends le jumper : tu passes de l\'autre côté de l\'arène.'],
      ['kill','À l\'impact, il laisse une <b>grande flaque</b>. Le terrain est déjà petit : elle ne doit pas le recouvrir.'],
      ['do','Force-le à frapper <b>hors du terrain</b> (côté 180° dans la vidéo) : la flaque ne gêne personne.'],
      ['tip','Puis A ou D sur le jumper.']]],
@@ -541,7 +542,7 @@ const PATS = [
   ['Marteau à l\'envers & rayon',950,'',[['t0950','']],[['do','Reste devant. Après qu\'il pose le marteau, sors.']]],
   ['Deux mains one-shot',960,'',[['t0960','']],[['kill','Le <b>1er coup</b> est un one-shot.'],['do','Éloigne-toi, puis reviens pour esquiver le 2e.']]],
   ['Une main one-shot',965,'',[['t0965',''],['t0975',''],['t0980','']],[['new','Par rapport à l\'original, un <b>3e coup</b> en zone donut.'],['do','3e coup : l\'onde de choc précédente est la zone sûre (donut).'],['do','Mieux vaut rester collé avec le bouclier du support : colle-le (esquive du 1er), push immune sur le 2e, reste proche (esquive du 3e).']]],
-  ['Chain beam',990,'p3',[['t0995',''],['t1000',''],['t1005','']],[['tip','Exclusif à la phase 3.'],['kill','2 joueurs sont <b>enchaînés</b> et ne peuvent pas prendre le jumper. Le boss vise l\'un d\'eux avec un rayon one-shot.'],['do','Les 2 enchaînés l\'aggro au centre puis esquivent vers la <b>droite</b>.'],['do','Les 6 autres vont à <b>gauche</b> et prennent le jumper : le rayon part du côté où il y a le plus de monde.'],['tip','N\'oublie pas : A ou D.']]],
+  ['Chain beam',990,'p3',[['t0995',''],['t1000',''],['t1005','']],[['tip','Exclusif à la phase 3.'],['kill','2 joueurs sont <b>enchaînés</b> et ne peuvent pas prendre le jumper. Le boss vise l\'un d\'eux avec un rayon one-shot.'],['do','Les 2 enchaînés l\'aggro au centre puis esquivent vers la <b>droite</b>.'],['do','Les 6 autres vont à <b>gauche</b>, près du jumper, et le prennent pour traverser l\'arène : le rayon part du côté où il y avait le plus de monde.'],['tip','N\'oublie pas : A ou D.']]],
 ];
 
 const esc = s => s.replace(/"/g,'&quot;');
