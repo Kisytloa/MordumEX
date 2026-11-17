@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Grimoire de Mordum</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Guide fan de Mordum en mode Extrême (Lost Ark, Kazeros acte III) : chaque mécanique par barre de PV, avec captures de la vidéo de Memorizer.">
+<meta name="theme-color" content="#d4a85a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: fixed topbar with boss-HP scroll bar, full-bleed hero, then one long column of mechanic "entries" (text left, captures right). Single dark theme by choice: it is read next to the game. */
+:root{
+  --bg:#0b0a0e;--surface:#15131a;--surface2:#1f1c25;--line:#2e2a35;
+  --ink:#ece5d7;--muted:#a39b8f;--gold:#d4a85a;--blood:#dc5841;--soul:#8fd3bf;
+  --red:#ff5468;--blue:#4c9bff;--safe:#3fd77a;--warn:#f2cf3c;
+  --f-display:"Alegreya SC","Palatino Linotype",Georgia,serif;
+  --f-body:"Golos Text","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;--navh:56px;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--navh) + 20px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;margin:0;overflow-x:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+h2{font-size:clamp(1.9rem,4.6vw,3.1rem);line-height:1.02;font-weight:800}
+p{margin:0}
+a{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+img{max-width:100%;display:block}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kicker{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+/* topbar */
+.topbar{position:fixed;left:0;right:0;top:0;z-index:50;padding-top:env(safe-area-inset-top,0px);background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(12px) saturate(1.2);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.topbar .row{display:flex;align-items:center;gap:14px;height:var(--navh)}
+.brand{display:flex;align-items:center;gap:8px;font:700 1.05rem var(--f-display);color:var(--ink);text-decoration:none;white-space:nowrap}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+.nav::-webkit-scrollbar{display:none}
+.nav a{font-size:.84rem;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.nav a:hover,.nav a.on{color:var(--ink);background:var(--surface2)}
+.bosshp{position:relative;height:4px;background:#2a0f12}
+.bosshp i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#8c1d22,var(--blood) 70%,#ff8a6a);transition:width .25s;box-shadow:0 0 12px rgba(220,88,65,.6)}
+.topbar .row{padding-right:max(76px,env(safe-area-inset-right,0px))}
+.bosshp b{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:calc(-1 * var(--navh) / 2 - 10px);font:600 .7rem var(--f-mono);color:var(--blood);background:var(--bg);padding:1px 6px;border:1px solid #4a1d1f;border-radius:4px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;isolation:isolate;display:grid;align-items:end;min-height:min(92vh,860px);padding-block:calc(var(--navh) + 60px) 48px;background:#0a0a10}
+.hero-art{position:absolute;inset:0;z-index:-2}
+.hero-art img{width:100%;height:100%;object-fit:cover;object-position:60% 40%;animation:drift 24s ease-in-out infinite alternate}
+@keyframes drift{to{transform:scale(1.08) translateX(-2%)}}
+.hero-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(8,8,12,.95) 0%,rgba(8,8,12,.82) 45%,rgba(8,8,12,.15) 80%),linear-gradient(180deg,rgba(11,10,14,.4),transparent 30%,transparent 60%,var(--bg) 99%)}
+.hero-in{display:grid;gap:18px}
+.eyebrow{display:flex;flex-wrap:wrap;gap:8px}
+.eyebrow span{font:600 .7rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 9px;border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);border-radius:999px;color:var(--gold);background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(4px)}
+.eyebrow span.nm{color:var(--blood);border-color:color-mix(in srgb,var(--blood) 55%,transparent)}
+.title{font-size:clamp(3.6rem,13vw,9.5rem);line-height:.86;font-weight:800;background:linear-gradient(180deg,#fff7e6 0%,#ead7ae 45%,#a87a35 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(212,168,90,.3))}
+.subtitle{font:500 clamp(1.1rem,2.4vw,1.5rem) var(--f-display);color:#d9c49b}
+.subtitle small{font:400 .85rem var(--f-body);color:var(--muted);margin-left:8px}
+.hero-copy{max-width:58ch;color:#d6cdbd}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:600 .88rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:9px 14px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;white-space:nowrap;text-decoration:none;transition:border-color .2s,transform .2s,box-shadow .2s}
+.btn:hover{border-color:var(--muted)}
+.btn.prime{background:linear-gradient(180deg,#e6c27c,#b4852f);color:#1a1206;border-color:#e6c27c;box-shadow:0 10px 30px -10px rgba(212,168,90,.6)}
+.btn.prime:hover{transform:translateY(-2px);box-shadow:0 0 0 6px rgba(212,168,90,.12),0 14px 34px -10px rgba(212,168,90,.7)}
+.btn.ghost{background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(4px)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;max-width:640px}
+.stats div{background:color-mix(in srgb,var(--bg) 78%,transparent);padding:10px 12px;display:grid;gap:1px}
+.stats b{font:600 1.15rem var(--f-mono);font-variant-numeric:tabular-nums}
+.stats span{font-size:.66rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.stats div:last-child b{color:var(--blood)}
+
+/* marquee */
+.marquee{border-block:1px solid var(--line);overflow:hidden;background:linear-gradient(90deg,var(--bg),var(--surface),var(--bg));padding-block:12px}
+.marquee .track{display:flex;gap:34px;width:max-content;animation:mq 70s linear infinite}
+.marquee span{font:700 1.05rem var(--f-display);color:color-mix(in srgb,var(--ink) 70%,transparent);white-space:nowrap}
+.marquee span em{font:500 .8rem var(--f-mono);font-style:normal;color:var(--gold);margin-right:8px}
+.marquee span::after{content:"✦";color:var(--blood);margin-left:34px;font-size:.7rem;vertical-align:middle}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* chapters */
+.chapter{padding-block:80px 24px}
+.chapter-head{display:grid;gap:10px;margin-bottom:30px;max-width:760px}
+.chapter-head h2{background:linear-gradient(180deg,#fff6e4,#d9c49b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:#cfc6b6;font-size:1.02rem;max-width:68ch}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:6px;align-content:start}
+.fact h3{font-size:1.15rem;color:#f0e2c4}
+.fact p{color:#cfc6b6;font-size:.9rem}
+.fact .k{font:600 .68rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+
+/* hp rail */
+.rail{position:sticky;top:calc(var(--navh) + 4px + env(safe-area-inset-top,0px));z-index:20;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:10px;margin-bottom:18px;background:linear-gradient(180deg,var(--bg) 70%,transparent)}
+.rail::-webkit-scrollbar{display:none}
+.rail a{font:600 .74rem var(--f-mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rail a:hover{color:var(--ink);border-color:var(--muted)}
+.rail a.brk{color:var(--soul)}
+.rail a.on{background:var(--gold);color:#1a140a;border-color:var(--gold)}
+
+/* mechanic entry */
+.mech{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px;padding-block:34px;border-top:1px solid var(--line)}
+.mech-txt{display:grid;gap:12px;align-content:start;min-width:0}
+.mhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hp{font:700 .8rem var(--f-mono);color:#1a140a;background:var(--gold);border-radius:6px;padding:3px 8px;font-variant-numeric:tabular-nums}
+.mech.brk .hp{background:var(--soul)}
+.mech.nova .hp{background:var(--blood);color:#fff}
+.tag{font:600 .66rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mech h3{font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.05;font-weight:800;color:#f3e7cf}
+.vlink{font:600 .76rem var(--f-mono);color:var(--gold);text-decoration:none;border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);border-radius:6px;padding:3px 8px;margin-left:auto}
+.vlink:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.tips{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.tips li{position:relative;padding-left:30px;color:#ddd4c4;font-size:.93rem}
+.tips li::before{position:absolute;left:0;top:1px;width:21px;height:21px;border-radius:5px;display:grid;place-items:center;font:700 .72rem var(--f-mono)}
+.tips li.new::before{content:"EX";background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold);font-size:.58rem}
+.tips li.kill::before{content:"✕";background:color-mix(in srgb,var(--blood) 22%,transparent);color:var(--blood)}
+.tips li.do::before{content:"✓";background:color-mix(in srgb,var(--safe) 18%,transparent);color:var(--safe)}
+.tips li.tip::before{content:"i";background:var(--surface2);color:var(--muted)}
+.tips li b{color:#fff3d9;font-weight:600}
+.r{color:var(--red);font-weight:600}.b{color:var(--blue);font-weight:600}
+.note{font-size:.82rem;color:var(--muted);max-width:70ch}
+.shots{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
+.shots.one{grid-template-columns:1fr}
+.shots figure{margin:0;display:grid;gap:5px}
+.shots figure:first-child:nth-last-child(odd){grid-column:1/-1}
+.shots button{padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:zoom-in;background:#000;display:block;width:100%}
+.shots button:hover{border-color:var(--gold)}
+.shots img{width:100%;aspect-ratio:16/9;object-fit:cover;transition:transform .5s}
+.shots button:hover img{transform:scale(1.04)}
+.shots figcaption{font-size:.76rem;color:var(--muted)}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:6px}
+.legend .tips{display:flex;flex-wrap:wrap;gap:6px 18px}
+.legend .tips li{font-size:.8rem;color:var(--muted)}
+
+/* post-0 steps */
+.steps{counter-reset:s;display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;color:#ddd4c4;font-size:.93rem}
+.steps li::before{content:counter(s);font:700 1rem var(--f-mono);color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);border-radius:8px;height:30px;display:grid;place-items:center}
+.steps li b{color:#fff3d9}
+.post0{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+
+/* pattern cards */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid;grid-template-rows:auto 1fr}
+.pcard .shots{grid-template-columns:1fr;gap:0}
+.pcard .shots button{border:0;border-radius:0}
+.pcard .shots figcaption{display:none}
+.pbody .shots{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pbody .shots figure:first-child:nth-last-child(odd){grid-column:auto}
+.pbody .shots button{border:1px solid var(--line);border-radius:8px}
+.pbody{padding:14px 16px 16px;display:grid;gap:8px;align-content:start}
+.pbody h3{font-size:1.3rem;color:#f3e7cf}
+.pcard.p3{border-color:color-mix(in srgb,var(--blood) 55%,var(--line))}
+
+/* sidereal timeline */
+.tl{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;padding-top:26px}
+.tl::before{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:linear-gradient(90deg,var(--gold),var(--blood))}
+.tl div{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px;align-content:start}
+.tl div::before{content:"";position:absolute;top:-21px;left:14px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.tl b{font:700 1.1rem var(--f-mono);color:var(--gold)}
+.tl span{font-weight:600;color:#f3e7cf}
+.tl small{font-size:.78rem;color:var(--muted)}
+.tl .sp b{color:var(--blood)}
+.tl .sp::before{background:var(--blood);box-shadow:0 0 10px var(--blood)}
+
+.src{display:grid;gap:8px;color:#cfc6b6;font-size:.9rem}
+footer{border-top:1px solid var(--line);margin-top:60px;padding-block:24px 40px;color:var(--muted);font-size:.8rem}
+
+/* lightbox */
+dialog{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0;border-radius:12px;max-width:min(1280px,96vw);width:100%}
+dialog::backdrop{background:rgba(5,5,8,.88);backdrop-filter:blur(4px)}
+dialog img{width:100%}
+dialog p{padding:10px 14px;font-size:.88rem;color:#cfc6b6;display:flex;gap:12px;align-items:center}
+dialog button{margin-left:auto}
+
+@media (max-width:860px){
+  .mech,.post0{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tl::before{display:none}
+  .tl div::before{display:none}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .brand span{display:none}
+  .shots{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap row">
+    <a class="brand" href="#top"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="#d4a85a" stroke-width="2"/><path d="M16 5v22M9 12h14" stroke="#d4a85a" stroke-width="2"/></svg><span>Mordum EX</span></a>
+    <nav class="nav" id="nav">
+      <a href="#prep">Prépa</a><a href="#systeme">Système</a><a href="#mechas">Méchas</a><a href="#post0">Barre 0</a><a href="#patterns">Patterns</a><a href="#sidereals">Sidereals</a><a href="#sources">Sources</a>
+    </nav>
+  </div>
+  <div class="bosshp" aria-hidden="true"><i id="hpFill" style="width:100%"></i><b id="hpTxt">×500</b></div>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-art" aria-hidden="true"><img src="img/hero.jpg" alt=""></div>
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <div class="eyebrow"><span>Kazeros · Acte III</span><span>Mode Extrême</span><span>8 joueurs</span><span class="nm">Nightmare · 0 rez</span></div>
+    <h1 class="title">Mordum</h1>
+    <div class="subtitle">Extreme Nightmare <small>모르둠 익스트림</small></div>
+    <p class="hero-copy">Toutes les différences avec le raid d'origine, barre par barre, de ×475 jusqu'au post-0 : flaques de 8 minutes, jumper A ou D, gros orbe, swap blanc aléatoire et chain beam. Chaque mécanique a ses captures et un lien vers le bon moment de la vidéo.</p>
+    <div class="cta">
+      <a class="btn prime" href="#mechas">▶ Méchas par barre</a>
+      <a class="btn ghost" href="#post0">Barre 0</a>
+      <a class="btn ghost" href="#sidereals">Plan Sidereals</a>
+    </div>
+    <div class="stats">
+      <div><b>1730</b><span>iLvl · Normal</span></div>
+      <div><b>1770</b><span>iLvl · Hard</span></div>
+      <div><b>1780</b><span>iLvl · Nightmare</span></div>
+      <div><b>8 min</b><span>Durée des flaques</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="mq"></div></div>
+
+<main>
+
+<section class="chapter wrap" id="prep">
+  <div class="chapter-head">
+    <div class="kicker">Avant de lancer</div>
+    <h2>Préparation</h2>
+    <p class="lead">En Normal et Hard, les résurrections sont infinies : seul un wipe sur méca fait perdre l'essai. En Nightmare, aucune résurrection, c'est là que tout se joue.</p>
+  </div>
+  <div class="facts">
+    <div class="fact"><span class="k">Niveau d'objet</span><h3>1730 · 1770 · 1780</h3><p>Normal, Hard et Nightmare.</p></div>
+    <div class="fact"><span class="k">Résurrections</span><h3>Infinies sauf NM</h3><p>Normal/Hard : on peut quasiment le tuer d'une traite tant qu'on ne wipe pas sur une méca. Nightmare : aucune.</p></div>
+    <div class="fact"><span class="k">Objets de combat</span><h3>Grenade sombre + Charme sacré splendide</h3><p>Plus un troisième objet que le streamer appelle « natural pin » (nom entendu dans la vidéo, à vérifier en jeu).</p></div>
+    <div class="fact"><span class="k">Hyper éveil</span><h3>Garde-le pour le zigzag</h3><p>Ne pas l'utiliser sur l'enclume (×275) : il sert au 3e zigzag rouge et bleu, bien plus dur.</p></div>
+  </div>
+</section>
+
+<section class="chapter wrap" id="systeme">
+  <div class="chapter-head">
+    <div class="kicker">Ce qui change partout</div>
+    <h2>Le système Extrême</h2>
+    <p class="lead">Deux règles s'appliquent pendant tout le combat. Elles expliquent la moitié des wipes.</p>
+  </div>
+  <div id="sysList"></div>
+</section>
+
+<section class="chapter wrap" id="mechas">
+  <div class="chapter-head">
+    <div class="kicker">De ×475 aux ruptures finales</div>
+    <h2>Méchas par barre de PV</h2>
+    <p class="lead">Dans l'ordre du combat. Clique sur une capture pour l'agrandir, ou sur le minutage pour ouvrir la vidéo au bon moment.</p>
+  </div>
+  <div class="legend"><ul class="tips"><li class="new">Nouveau en Extrême</li><li class="kill">Mortel / wipe</li><li class="do">À faire</li><li class="tip">Info</li></ul></div>
+  <nav class="rail" id="rail" aria-label="Barres de PV"></nav>
+  <div id="mechList"></div>
+</section>
+
+<section class="chapter wrap" id="post0">
+  <div class="chapter-head">
+    <div class="kicker">Barre 0 · <a href="https://youtu.be/Qnmv4rFPgl0?t=820" target="_blank" rel="noopener">13:40</a></div>
+    <h2>Après la barre 0</h2>
+    <p class="lead">Même ouverture que le raid d'origine, puis une suite fixe. Les lignes de la fin se jouent au chrono d'enrage (광폭화까지, sous la barre de vie).</p>
+  </div>
+  <div class="post0">
+    <ol class="steps">
+      <li><span>Ouverture identique au raid d'origine.</span></li>
+      <li><span><b>Flaques en zigzag</b> : esquive-les et pose tes flaques <b>derrière</b> le groupe.</span></li>
+      <li><span><b>Croix de rayons ×3</b>, longue. Esquive juste après la fin du 1er tir, car il en tire un 2e.</span></li>
+      <li><span>2e croix : reste dans la zone sûre, puis bouge quand elle se termine. <b>Bastian +3+1</b> ici.</span></li>
+      <li><span>3e croix : esquive, puis déplace-toi une fois.</span></li>
+      <li><span>Le boss devient <b class="r">rouge</b> (il peut aussi être <b class="b">bleu</b>) : tous les joueurs de l'autre couleur doivent changer, sinon c'est la mort quasi assurée. Ça se reproduit une fois, puis le boss passe en jaune neutre.</span></li>
+      <li><span><b>Lignes mortelles</b> : tout le monde se regroupe et sort quand le chrono d'enrage arrive à <b>1:01</b> environ (le streamer dit « exactement 1 »). Deuxième ligne : sortez à <b>0:54</b>. Mal regroupés, des joueurs meurent.</span></li>
+      <li><span>Le pattern se répète ensuite : tout en dégâts.</span></li>
+    </ol>
+    <div class="shots" id="post0Shots"></div>
+  </div>
+</section>
+
+<section class="chapter wrap" id="patterns">
+  <div class="chapter-head">
+    <div class="kicker">Attaques hors méca · <a href="https://youtu.be/Qnmv4rFPgl0?t=924" target="_blank" rel="noopener">15:24</a></div>
+    <h2>Patterns de mains, de marteau et de phase 3</h2>
+    <p class="lead">Les attaques normales qui tuent en un coup en Extrême, avec les consignes affichées dans la vidéo.</p>
+  </div>
+  <div class="pgrid" id="patList"></div>
+</section>
+
+<section class="chapter wrap" id="sidereals">
+  <div class="chapter-head">
+    <div class="kicker">Plan d'utilisation · <a href="https://youtu.be/Qnmv4rFPgl0?t=1009" target="_blank" rel="noopener">16:49</a></div>
+    <h2>Sidereals</h2>
+    <p class="lead">Le plan de la vidéo pour Extreme Nightmare. Sur ×160, Balthor +3+1 est conseillé s'il faut du DPS ; si le check DPS est bas, Bastian aide mieux à gérer la jauge.</p>
+  </div>
+  <div class="tl">
+    <div><b>~×490</b><span>Balthor +3</span><small>Juste après le début.</small></div>
+    <div><b>×375</b><span>Bastian +3+1</span><small>Autour de la 1re rupture.</small></div>
+    <div><b>avant ×250</b><span>Bastian +3+1</span><small>Avant la 2e rupture.</small></div>
+    <div><b>×160</b><span>Bastian +3+1</span><small>ou Balthor +3+1 (stagger + gros burst).</small></div>
+    <div class="sp"><b>~×125 → 0</b><span>Balthor spécial</span><small>À la 4e rupture.</small></div>
+    <div><b>après 0</b><span>Bastian +3+1</span><small>Sur la 2e croix de rayons.</small></div>
+  </div>
+  <div class="shots one" style="margin-top:16px"><figure><button type="button" data-src="img/sidereal.jpg" data-cap="Timeline Sidereals tirée de la vidéo (16:50)"><img src="img/sidereal.jpg" alt="Timeline Sidereals de la vidéo : Balthor +3, Bastian +3+1 aux ruptures, Balthor spécial, Bastian +3+1 après 0" loading="lazy" style="aspect-ratio:auto;object-fit:contain"></button><figcaption>Timeline originale de la vidéo.</figcaption></figure></div>
+</section>
+
+<section class="chapter wrap" id="sources">
+  <div class="chapter-head">
+    <div class="kicker">Crédits</div>
+    <h2>Sources</h2>
+  </div>
+  <div class="src">
+    <p>Vidéo : <a href="https://youtu.be/Qnmv4rFPgl0" target="_blank" rel="noopener">[Lost Ark] Extreme Mordum Guide</a> par Memorizer. Les commentaires viennent de sa narration, les captures et consignes incrustées de la vidéo.</p>
+    <p>Images de clear : Sotimerry (소티메리), premier clear KR, utilisées avec permission par Memorizer.</p>
+    <p>Entraînement au swap de ×160 : <a href="https://deploy-vert-seven-11.vercel.app" target="_blank" rel="noopener">deploy-vert-seven-11.vercel.app</a> (lien de la description).</p>
+    <p>Vidéo complète de tous les patterns recommandée par Memorizer : <a href="https://www.youtube.com/watch?v=Zha5LQSzXVc" target="_blank" rel="noopener">youtube.com/watch?v=Zha5LQSzXVc</a>.</p>
+    <p class="note">Les 4 dernières parties (patterns, phase 3, Sidereals) ne sont pas commentées à l'oral : leur texte reprend les consignes affichées à l'écran. La 3e et la 4e rupture ne sont pas commentées non plus.</p>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">Guide fan non officiel · Lost Ark © Smilegate RPG / Amazon Games · Style inspiré du Grimoire de Belgardin (xSlowly).</div></footer>
+
+<dialog id="lb"><img id="lbImg" alt=""><p><span id="lbCap"></span><button class="btn" type="button" id="lbClose">Fermer</button></p></dialog>
+
+<script>
+const V = t => `https://youtu.be/Qnmv4rFPgl0?t=${t}`;
+const mmss = t => `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+
+// [hp label, rail label, start (s), kind, kicker, title, [[img, caption]], [[tipKind, html]]]
+const SYS = [
+  ['SYS','Jauge',52,'sys','Système','Jauge & flaques de 8 minutes',
+    [['t0060','Coup pris sur une pizza : la jauge tombe à moitié'],['t0092','Flaques posées du bon côté (orbe verte sur la mini-carte)']],
+    [['new','La jauge se remplit <b>beaucoup plus vite</b> quand tu te fais toucher par une attaque.'],
+     ['new','À la moitié de la jauge : ta <b>couleur s\'inverse</b> et une <b>flaque</b> apparaît sous toi environ <b>6 s</b> plus tard.'],
+     ['kill','Les flaques restent <b>8 minutes</b> en Extrême. Mal placées, elles mangent l\'arène.'],
+     ['do','Pose-les du côté de l\'<b>orbe verte sur la mini-carte</b> : c\'est là que la 1re rupture de sol aura lieu, elle les fera toutes disparaître.']]],
+  ['SYS','Jumper',97,'sys','Système','Jumper : A ou D',
+    [['t0100','Prise du jumper, ici la touche est D']],
+    [['new','La touche du jumper n\'est <b>plus toujours A</b> : parfois c\'est <b>D</b>.'],
+     ['do','Regarde la touche affichée <b>avant</b> d\'appuyer, à chaque fois.']]],
+];
+
+const MECHS = [
+  ['×475','475',119,'mech','Méca','Marques de foudre',
+    [['t0140','Le porteur de marque file vers le bord'],['t0180','Face au bord : la foudre part en X loin du groupe']],
+    [['tip','L\'éclair et le rayon du boss tournent <b>très vite</b>.'],
+     ['tip','3 fois de suite, un joueur au hasard reçoit une marque : l\'éclair part de lui et électrocute les autres.'],
+     ['new','Contrairement à l\'original, le porteur va vers l\'<b>extérieur</b> et se tourne <b>face au bord</b> : la foudre se propage en X.'],
+     ['do','Les autres restent <b>près du boss</b> et DPS en esquivant : les deux éclairs intérieurs ne les touchent jamais.'],
+     ['do','Le porteur colle au bord : l\'éclair extérieur passe à côté de lui.'],
+     ['kill','Attention au rayon tournant du boss pendant le déplacement (un bouclier sauve).']]],
+  ['×450','450',195,'mech','Méca','Quatre pizzas colorées',
+    [['t0212','Texte blanc : changement de couleur annoncé'],['t0220','Pizza rouge et bleue']],
+    [['tip','Le boss lance <b>4 pizzas</b> colorées.'],
+     ['new','Pendant <b>une seule</b> d\'entre elles, la couleur des joueurs s\'inverse. Un <b>texte blanc</b> l\'annonce à l\'écran.'],
+     ['tip','Le moment est aléatoire : avant la 1re, ou après la 2e, la 3e ou la 4e pizza.'],
+     ['do','Le changement n\'arrive qu\'<b>une fois</b> : après lui, ta couleur ne bouge plus jusqu\'à la fin de la méca.']]],
+  ['×425','425',240,'mech','Méca','Orbes, rayon et flaque jaune',
+    [['t0245','Esquive d\'abord les orbes'],['t0265','Le joueur à la flaque jaune (entouré)']],
+    [['do','Esquive d\'abord les <b>orbes</b>.'],
+     ['kill','Le rayon n\'a <b>aucun rectangle</b> d\'alerte : esquive dès que les <b>mains se rassemblent</b> au centre.'],
+     ['tip','Un joueur reçoit une <b>flaque jaune</b> qui blesse ceux à portée.'],
+     ['do','S\'éloigner de lui te met dans le rayon. Si tu ne peux pas faire autrement, <b>suis-le</b>.'],
+     ['new','Le <b>cercle intérieur</b>, sûr dans l\'original, est interdit : il remplit ta jauge et provoque le wipe. Il faut juste fuir.']]],
+  ['×400','400',291,'mech','Méca','Pizzas, un seul swap',
+    [['t0290','Début de la séquence'],['t0300','Pizza rouge et bleue']],
+    [['tip','Même principe que ×450 : la couleur ne change qu\'<b>une seule fois</b>.'],
+     ['tip','Exemple de la vidéo : 1re pizza sans changement, puis passage au <b class="r">rouge</b>, qui tient jusqu\'au bout.']]],
+  ['×375','375',314,'brk','1re rupture de sol','Rupture n°1',
+    [['t0320','Les joueurs groupés partent vers l\'orbe verte'],['t0335','Stagger de l\'orbe le long du mur']],
+    [['do','Au lancement, 3 joueurs se retrouvent groupés : ils vont là où se trouve l\'<b>orbe verte</b>, c\'est là que le sol va casser.'],
+     ['tip','Le porteur de la marque de choc reçoit aussi une <b>croix d\'éclair</b>.'],
+     ['do','Lui reste près du boss, du côté de l\'orbe, et est <b>le seul</b> à le staggerer.'],
+     ['new','Les autres staggent l\'<b>orbe</b>, qui a maintenant sa propre jauge de stagger.'],
+     ['do','Placez-vous <b>le long du mur</b> : la croix d\'éclair ne touche personne.']]],
+  ['×325','325',371,'mech','Méca','Dôme coloré & orbes chasseuses',
+    [['t0380','L\'hémisphère jaune prend une couleur'],['t0395','Orbes de couleur et orbes jaunes chasseuses']],
+    [['tip','L\'hémisphère jaune devient <b class="r">rouge</b> ou <b class="b">bleu</b>.'],
+     ['do','La couleur indiquée <b>entre</b>, l\'autre <b>reste dehors</b>.'],
+     ['kill','8 orbes jaunes, une par joueur, te poursuivent. Si elle te touche, elle laisse une <b>flaque de 8 min</b>.'],
+     ['do','Utilise le <b>jumper</b> pour les semer plutôt que de marcher, puis ramasse les orbes de <b>ta couleur</b> (non ramassées, elles laissent aussi des flaques).']]],
+  ['×300','300',420,'nova','Supernova','1re Supernova',
+    [['t0425','Le smash de la Supernova']],
+    [['new','<b>Pas de contre possible</b>, contrairement à l\'original.'],
+     ['do','Prends le jumper <b>juste avant</b> l\'impact : tu esquives le smash puis l\'onde de choc.'],
+     ['tip','Rythme : smash, esquive, puis esquive de l\'onde de choc.']]],
+  ['×275','275',437,'mech','Méca','L\'enclume',
+    [['t0440','Début de l\'enclume'],['t0460','Marteau tiré en arrière : prépare G']],
+    [['do','Guard <b>au moins 5 fois</b>, quoi qu\'il arrive.'],
+     ['do','Ne regarde pas l\'éclair : regarde le <b>marteau tiré en arrière</b>. Quand il bouge, <b>G</b> sur l\'enclume.'],
+     ['tip','Le 3e coup est très lent, le 5e arrive ensuite.'],
+     ['kill','Ne reste pas face à lui. Si quelqu\'un rate, le pattern continue.'],
+     ['tip','Pas d\'hyper éveil ici : garde-le pour le zigzag.']]],
+  ['×250','250',480,'brk','2e rupture de sol','Rupture n°2',
+    [['t0490','Le porteur de la croix d\'éclair au boss']],
+    [['do','Comme la 1re : le porteur de la croix d\'éclair reste près du boss et le stagger.'],
+     ['do','Les joueurs qui portent une flaque vont vers l\'endroit qui va casser.'],
+     ['do','Les autres se répartissent sur l\'orbe.']]],
+  ['×200','200',502,'mech','Méca','Gros orbe central',
+    [['t0515','Orbes rouges à gauche, bleus à droite'],['t0530','Trajet au jumper vers le côté opposé']],
+    [['tip','Orbes <b class="r">rouges à gauche</b>, <b class="b">bleus à droite</b>.'],
+     ['new','Un <b>gros orbe</b> apparaît au centre.'],
+     ['kill','S\'il atteint le boss, c\'est le <b>wipe</b>.'],
+     ['do','Les joueurs de la <b>même couleur</b> que le gros orbe prennent le jumper vers le côté opposé. Ceux de la couleur opposée se placent <b>devant le boss</b> pour le détruire.'],
+     ['do','Détruisez aussi tous les petits orbes (surtout en NM) pour que le boss n\'obtienne pas de bouclier.'],
+     ['tip','Après la 2e rupture, le jumper peut être A ou D.']]],
+  ['×180','180',548,'mech','Méca','Cases de couleur',
+    [['t0550','Le boss se charge en rouge et bleu'],['t0560','Colonnes de foudre rouges et bleues']],
+    [['do','Va simplement sur la case de <b>ta couleur</b>.']]],
+  ['×160','160',566,'mech','Méca','Stagger & swap blanc',
+    [['t0570','Stagger du boss en ignorant le marteau'],['t0590','Zones de couleur après le stagger'],['t0625','Simulateur, cas 1 : la bonne couleur reçoit la zone blanche'],['t0640','Simulateur, cas 2 : une autre couleur la reçoit']],
+    [['tip','Option 1 : <b>Bastian</b> comme dans l\'original.'],
+     ['tip','Option 2 : <b>Balthor</b> sur le boss, il le stagger jusqu\'au bout. Staggez en ignorant le marteau, puis le lead lance le <b>+1</b> tout de suite pendant le stagger : gros dégâts.'],
+     ['do','Balthor 3+1 réduit le DPS requis pour tout le monde : il est en général conseillé plutôt que Bastian. Si le check DPS est bas, Bastian aide mieux à gérer la jauge.'],
+     ['new','Après le stagger, la <b>zone blanche</b> de changement de couleur tombe sur un joueur <b>au hasard</b>, plus sur le plus proche du boss.'],
+     ['do','Les joueurs de couleur différente se regroupent d\'abord au boss.'],
+     ['do','<b>Cas 1</b>, la bonne couleur la reçoit : il va vers la couleur opposée la plus proche, ceux qui doivent changer le suivent et tout le monde swap.'],
+     ['do','<b>Cas 2</b>, une autre couleur la reçoit : comme l\'original, les couleurs différentes swap ensemble devant le boss.'],
+     ['tip','Simulateur pour s\'entraîner : <a href="https://deploy-vert-seven-11.vercel.app" target="_blank" rel="noopener">deploy-vert-seven-11.vercel.app</a>.']]],
+  ['×140','140',650,'mech','Méca','Flaques et 4 pizzas',
+    [['t0660','Placement : flaque côté droit'],['t0680','La flaque posée sur le bord droit']],
+    [['tip','Certains joueurs reçoivent une flaque, et la pizza arrive <b>4 fois</b>.'],
+     ['do','Pose la flaque sur le <b>côté droit</b> : c\'est la prochaine zone qui casse.'],
+     ['do','Pendant ce temps, reste sur la pizza de <b>ta couleur</b> : attends au centre, puis juste avant que la flaque tombe, file au bord droit.'],
+     ['do','Ensuite, esquive-la.']]],
+  ['~×125','R3',687,'brk','3e rupture de sol','Rupture n°3',
+    [['t0690','La 3e rupture']],
+    [['tip','Pas commentée dans la vidéo. Les flaques de ×140 sont sur la zone qui casse.']]],
+  ['<125','Zigzag',699,'mech','Méca','Zigzag rouge & bleu',
+    [['t0700','Début du zigzag'],['t0715','Garde devant le boss']],
+    [['do','Sois sur la bonne couleur et <b>guard</b> quand il se rapproche.'],
+     ['kill','Esquive la <b>2e attaque</b> : elle te fait tomber de l\'arène, mort assurée.'],
+     ['do','3e zigzag : n\'essaie pas de guard, utilise l\'<b>hyper éveil</b>. Être de la bonne couleur et guard en même temps est trop dur.'],
+     ['do','Ensuite, passe sur la couleur critique et guard deux fois, puis éloigne-toi du centre.']]],
+  ['<125','SN2',742,'nova','Supernova','2e Supernova',
+    [['t0750','Zone visée hors du terrain (entourée)'],['t0775','Impact de la Supernova']],
+    [['do','Dès sa <b>1re charge</b>, prends le jumper.'],
+     ['kill','À l\'impact, il laisse une <b>grande flaque</b>. Le terrain est déjà petit : elle ne doit pas le recouvrir.'],
+     ['do','Force-le à frapper <b>hors du terrain</b> (côté 180° dans la vidéo) : la flaque ne gêne personne.'],
+     ['tip','Puis A ou D sur le jumper.']]],
+  ['<125','R4',783,'brk','4e rupture','Rupture n°4 & Balthor spécial',
+    [['t0790','4e rupture'],['t0800','Balthor spécial']],
+    [['tip','Pas commentée dans la vidéo. C\'est ici que se place le <b>Balthor spécial</b> du plan Sidereals.']]],
+];
+
+const POST0 = [['t0820','Barre 0 : ouverture'],['t0840','Croix de rayons'],['t0865','Le boss passe en rouge (il peut être bleu)'],['t0890','Lignes mortelles : tout le monde groupé']];
+
+const PATS = [
+  ['Deux poings one-shot',930,'',[['t0930',''],['t0935','']],[['kill','Frappe les côtés en lignes, puis <b>one-shot le côté intérieur</b>.'],['do','Éloigne-toi, ou prends de la distance par rapport à l\'avant.']]],
+  ['Guard lent + pound',940,'',[['t0940','']],[['do','Guard <b>2 s après le flash</b> (stun si raté).'],['kill','Puis sors de devant lui : ça peut te tuer.']]],
+  ['Marteau à l\'envers & rayon',950,'',[['t0950','']],[['do','Reste devant. Après qu\'il pose le marteau, sors.']]],
+  ['Deux mains one-shot',960,'',[['t0960','']],[['kill','Le <b>1er coup</b> est un one-shot.'],['do','Éloigne-toi, puis reviens pour esquiver le 2e.']]],
+  ['Une main one-shot',965,'',[['t0965',''],['t0975',''],['t0980','']],[['new','Par rapport à l\'original, un <b>3e coup</b> en zone donut.'],['do','3e coup : l\'onde de choc précédente est la zone sûre (donut).'],['do','Mieux vaut rester collé avec le bouclier du support : colle-le (esquive du 1er), push immune sur le 2e, reste proche (esquive du 3e).']]],
+  ['Chain beam',990,'p3',[['t0995',''],['t1000',''],['t1005','']],[['tip','Exclusif à la phase 3.'],['kill','2 joueurs sont <b>enchaînés</b> et ne peuvent pas prendre le jumper. Le boss vise l\'un d\'eux avec un rayon one-shot.'],['do','Les 2 enchaînés l\'aggro au centre puis esquivent vers la <b>droite</b>.'],['do','Les 6 autres vont à <b>gauche</b> et prennent le jumper : le rayon part du côté où il y a le plus de monde.'],['tip','N\'oublie pas : A ou D.']]],
+];
+
+const esc = s => s.replace(/"/g,'&quot;');
+const shots = imgs => imgs.map(([f,c]) =>
+  `<figure><button type="button" data-src="img/${f}.jpg" data-cap="${esc(c)}"><img src="img/${f}.jpg" alt="${esc(c || 'Capture de la vidéo')}" loading="lazy"></button>${c?`<figcaption>${c}</figcaption>`:''}</figure>`).join('');
+const tips = list => `<ul class="tips">${list.map(([k,h])=>`<li class="${k}">${h}</li>`).join('')}</ul>`;
+const entry = ([hp,rail,t,kind,kick,title,imgs,tl],i) => `
+  <article class="mech ${kind}" id="m-${rail}" data-hp="${hp}">
+    <div class="mech-txt">
+      <div class="mhead"><span class="hp">${hp}</span><span class="tag">${kick}</span><a class="vlink" href="${V(t)}" target="_blank" rel="noopener" aria-label="Voir dans la vidéo à ${mmss(t)}">▶ ${mmss(t)}</a></div>
+      <h3>${title}</h3>
+      ${tips(tl)}
+    </div>
+    <div class="shots${imgs.length===1?' one':''}">${shots(imgs)}</div>
+  </article>`;
+
+document.getElementById('sysList').innerHTML = SYS.map(entry).join('');
+document.getElementById('mechList').innerHTML = MECHS.map(entry).join('');
+document.getElementById('rail').innerHTML = MECHS.map(m=>`<a href="#m-${m[1]}" class="${m[3]==='brk'?'brk':''}">${m[1].match(/^\d/)?'×'+m[1]:m[1]}</a>`).join('');
+document.getElementById('post0Shots').innerHTML = shots(POST0);
+document.getElementById('patList').innerHTML = PATS.map(([title,t,cls,imgs,tl]) => `
+  <article class="pcard ${cls}">
+    <div class="shots">${shots(imgs.slice(0,1).map(([f])=>[f,title]))}</div>
+    <div class="pbody">
+      <div class="mhead"><span class="tag">${cls==='p3'?'Phase 3':'Pattern'}</span><a class="vlink" href="${V(t)}" target="_blank" rel="noopener">▶ ${mmss(t)}</a></div>
+      <h3>${title}</h3>
+      ${tips(tl)}
+      ${imgs.length>1?`<div class="shots">${shots(imgs.slice(1).map(([f])=>[f,title]))}</div>`:''}
+    </div>
+  </article>`).join('');
+
+const names = MECHS.map(m=>`<span><em>${m[0]}</em>${m[5]}</span>`).join('');
+document.getElementById('mq').innerHTML = names + names;
+
+// lightbox
+const lb = document.getElementById('lb');
+document.addEventListener('click', e => {
+  const b = e.target.closest('button[data-src]');
+  if (!b) return;
+  document.getElementById('lbImg').src = b.dataset.src;
+  document.getElementById('lbImg').alt = b.dataset.cap || '';
+  document.getElementById('lbCap').textContent = b.dataset.cap || '';
+  lb.showModal();
+});
+document.getElementById('lbClose').onclick = () => lb.close();
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+
+// boss HP bar follows the mechanic in view
+const fill = document.getElementById('hpFill'), txt = document.getElementById('hpTxt');
+const rail = [...document.querySelectorAll('#rail a')];
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const hp = e.target.dataset.hp, n = parseInt(hp.replace(/\D/g,''),10);
+  txt.textContent = isNaN(n) ? '×500' : hp.startsWith('<') ? '×125↓' : hp;
+  fill.style.width = (isNaN(n) ? 100 : Math.min(100, n/5)) + '%';
+  rail.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+}), {rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('.mech[data-hp]').forEach(m => io.observe(m));
+const p0 = document.getElementById('post0');
+new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { fill.style.width='0%'; txt.textContent='×0'; } }), {rootMargin:'-45% 0px -50% 0px'}).observe(p0);
+</script>
+</body>
+</html>
