@@ -436,14 +436,17 @@ let renderer;
 try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); }
 catch (e) { $('simCap').textContent = 'WebGL indisponible sur ce navigateur.'; return; }
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-const scene = new THREE.Scene();
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;const scene = new THREE.Scene();
 scene.background = new THREE.Color('#07070b');
 scene.fog = new THREE.Fog('#07070b', 45, 90);
 const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 300);
 const controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 10; controls.maxDistance = 80;
 scene.add(new THREE.HemisphereLight('#c9c2ff', '#1a1208', 0.75));
-const sun = new THREE.DirectionalLight('#ffe6b8', 0.9); sun.position.set(15, 30, 10); scene.add(sun);
+const sun = new THREE.DirectionalLight('#ffe6b8', 1.1); sun.position.set(15, 30, 10); scene.add(sun);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 90 });
+const rimLight = new THREE.DirectionalLight('#8a7cff', 0.5); rimLight.position.set(-12, 14, -20); scene.add(rimLight);
 
 function sprite(txt, size = 40, color = '#fff') {
   const c = document.createElement('canvas'), x = c.getContext('2d');
@@ -471,7 +474,7 @@ function sprite(txt, size = 40, color = '#fff') {
   for (let h = 0; h < 12; h++) { const a = rad(h); x.beginPath(); x.moveTo(m, m); x.lineTo(m + Math.sin(a) * m, m - Math.cos(a) * m); x.stroke(); }
   const tex = new THREE.CanvasTexture(c);
   const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 96), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9 }));
-  floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   const cliff = new THREE.Mesh(new THREE.CylinderGeometry(R, R * 0.8, 8, 96, 1, true), new THREE.MeshStandardMaterial({ color: '#191623', side: THREE.DoubleSide, roughness: 1 }));
   cliff.position.y = -4; scene.add(cliff);
   const rim = new THREE.Mesh(new THREE.TorusGeometry(R, 0.12, 8, 128), new THREE.MeshBasicMaterial({ color: COL.gold }));
@@ -488,35 +491,118 @@ for (const h of [3, 9]) {
   const lbl = sprite('Jumper', 34, COL.gold); lbl.position.y = 4.2; post.add(lbl);
 }
 
-// boss
+// boss : Mordum, géant en armure avec cornes, couronne de pointes, grosses mains et marteau
 const boss = new THREE.Group(); scene.add(boss);
-const bossMat = new THREE.MeshStandardMaterial({ color: '#2a2238', roughness: 0.55, metalness: 0.35 });
-const coreMat = new THREE.MeshStandardMaterial({ color: '#000', emissive: COL.gold, emissiveIntensity: 1.4 });
+const bossModel = new THREE.Group(); bossModel.scale.setScalar(1.2); boss.add(bossModel);
+const coreMat = new THREE.MeshStandardMaterial({ color: '#000', emissive: COL.gold, emissiveIntensity: 1.6 });
+const runeMat = new THREE.MeshStandardMaterial({ color: '#000', emissive: '#ffcf6a', emissiveIntensity: 0.9 });
+const bossUpper = new THREE.Group(), bossHands = [];
 (() => {
-  const add = (geo, mat, p, r = [0, 0, 0]) => { const m = new THREE.Mesh(geo, mat); m.position.set(...p); m.rotation.set(...r); boss.add(m); return m; };
-  add(new THREE.CylinderGeometry(1.7, 1.0, 4, 8), bossMat, [0, 2.1, 0]);
-  add(new THREE.SphereGeometry(0.95, 16, 12), bossMat, [0, 4.8, 0]);
-  add(new THREE.SphereGeometry(0.8, 12, 10), bossMat, [1.9, 3.7, 0]);
-  add(new THREE.SphereGeometry(0.8, 12, 10), bossMat, [-1.9, 3.7, 0]);
-  const hornMat = new THREE.MeshStandardMaterial({ color: '#d9cfb8', roughness: 0.4 });
-  add(new THREE.ConeGeometry(0.28, 2.2, 8), hornMat, [0.75, 5.9, 0], [0, 0, -0.45]);
-  add(new THREE.ConeGeometry(0.28, 2.2, 8), hornMat, [-0.75, 5.9, 0], [0, 0, 0.45]);
-  add(new THREE.SphereGeometry(0.5, 16, 12), coreMat, [0, 3, -1.15]);
-  const tri = new THREE.Mesh(new THREE.CircleGeometry(1, 3), new THREE.MeshBasicMaterial({ color: COL.gold, transparent: true, opacity: 0.85 }));
-  tri.rotation.set(-Math.PI / 2, 0, Math.PI / 2); tri.position.set(0, 0.06, -3.4); boss.add(tri);
-})();
+  const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.4, metalness: 0.6, ...o });
+  const armor = M('#4a5688', { metalness: 0.5, roughness: 0.35 }), dark = M('#262033', { metalness: 0.3, roughness: 0.7 }),
+        gold = M('#c9a052', { metalness: 0.9, roughness: 0.28 }), bone = M('#e6dfcf', { metalness: 0.1, roughness: 0.55 });
+  const add = (parent, geo, mat, p, r) => { const m = new THREE.Mesh(geo, mat); m.position.set(...p); if (r) m.rotation.set(...r); m.castShadow = true; parent.add(m); return m; };
+  const lathe = pts => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), 28);
+  const seg = (parent, a, b, r0, r1, mat) => {            // segment conique de a (rayon r0) à b (rayon r1)
+    const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b);
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, A.distanceTo(B), 10), mat);
+    m.position.copy(A).add(B).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+    m.castShadow = true; parent.add(m); return m;
+  };
+  const horn = (parent, pts, r, mat) => { const n = pts.length - 1; for (let k = 0; k < n; k++) seg(parent, pts[k], pts[k + 1], r * (1 - k / n) + 0.02, r * (1 - (k + 1) / n) + 0.02, mat); };
 
-// joueurs
+  // robe et bas du corps
+  add(bossModel, lathe([[0, 0], [2.5, 0.05], [2.3, 0.6], [1.9, 1.6], [1.45, 2.8], [1.3, 3.2], [0, 3.2]]), dark, [0, 0, 0]);
+  add(bossModel, new THREE.TorusGeometry(2.42, 0.09, 8, 48), gold, [0, 0.3, 0], [Math.PI / 2, 0, 0]);
+  add(bossModel, new THREE.TorusGeometry(1.92, 0.06, 8, 48), runeMat, [0, 1.6, 0], [Math.PI / 2, 0, 0]);
+  bossModel.add(bossUpper);
+  // torse
+  add(bossUpper, lathe([[0, 3], [1.35, 3.05], [1.75, 3.8], [1.95, 4.6], [1.7, 5.4], [1.0, 5.8], [0, 5.85]]), armor, [0, 0, 0]);
+  add(bossUpper, new THREE.TorusGeometry(1.36, 0.1, 8, 40), gold, [0, 3.1, 0], [Math.PI / 2, 0, 0]);
+  add(bossUpper, new THREE.SphereGeometry(0.55, 20, 14), coreMat, [0, 4.5, -1.72]);
+  add(bossUpper, new THREE.TorusGeometry(0.72, 0.1, 10, 32), gold, [0, 4.5, -1.68]);
+  // tête, yeux, cornes
+  const head = new THREE.Group(); head.position.set(0, 6.35, -0.1); bossUpper.add(head);
+  add(head, new THREE.SphereGeometry(0.85, 20, 16), armor, [0, 0, 0]);
+  add(head, new THREE.BoxGeometry(1.1, 0.9, 0.5), dark, [0, -0.15, -0.6]);
+  add(head, new THREE.SphereGeometry(0.12, 10, 8), coreMat, [0.28, 0.05, -0.86]);
+  add(head, new THREE.SphereGeometry(0.12, 10, 8), coreMat, [-0.28, 0.05, -0.86]);
+  for (const s of [1, -1]) horn(head, [[0.6 * s, 0.3, 0], [1.5 * s, 0.9, 0.2], [2.1 * s, 1.9, 0.5], [2.0 * s, 3.0, 0.9], [1.6 * s, 3.7, 1.3]], 0.32, bone);
+  // couronne de pointes dans le dos
+  for (let k = 0; k < 9; k++) {
+    const a = (k - 4) / 4 * 1.15, L = 3.4 - Math.abs(k - 4) * 0.35;
+    seg(bossUpper, [Math.sin(a) * 0.6, 6 + Math.cos(a) * 0.3, 0.9], [Math.sin(a) * (0.6 + L), 6 + Math.cos(a) * L, 1.6], 0.22, 0.02, bone);
+  }
+  // épaules, bras, mains
+  for (const s of [1, -1]) {
+    const sh = [2.0 * s, 5.2, 0];
+    add(bossUpper, new THREE.SphereGeometry(1.05, 18, 12, 0, TAU, 0, Math.PI * 0.6), armor, [sh[0], sh[1] - 0.1, 0]);
+    add(bossUpper, new THREE.TorusGeometry(1.0, 0.07, 8, 32), gold, [sh[0], sh[1] - 0.45, 0], [Math.PI / 2, 0, 0]);
+    for (let k = 0; k < 3; k++) seg(bossUpper, [sh[0] + s * (0.3 + k * 0.25), 5.7, -0.4 + k * 0.4], [sh[0] + s * (1.1 + k * 0.3), 7 - k * 0.2, -0.6 + k * 0.5], 0.18, 0.02, bone);
+    const elbow = [2.9 * s, 3.7, -0.2], wrist = [3.1 * s, 2.3, -1.0];
+    seg(bossUpper, sh, elbow, 0.55, 0.45, armor); seg(bossUpper, elbow, wrist, 0.45, 0.38, armor);
+    add(bossUpper, new THREE.TorusGeometry(0.42, 0.08, 8, 24), gold, wrist, [Math.PI / 2, 0, 0]);
+    const hand = new THREE.Group(); hand.position.set(wrist[0], wrist[1] - 0.3, wrist[2] - 0.2); bossUpper.add(hand); bossHands.push(hand);
+    add(hand, new THREE.BoxGeometry(1.0, 0.45, 1.1), armor, [0, -0.2, -0.2]);
+    for (let f = 0; f < 4; f++) {
+      const fx = (f - 1.5) * 0.26;
+      seg(hand, [fx, -0.3, -0.7], [fx * 1.2, -0.9, -1.25], 0.11, 0.07, dark);
+      seg(hand, [fx * 1.2, -0.9, -1.25], [fx * 1.3, -1.35, -1.1], 0.07, 0.015, gold);
+    }
+    seg(hand, [-0.5 * s, -0.25, -0.3], [-0.85 * s, -0.7, -0.9], 0.1, 0.03, dark);
+  }
+  // marteau dans la main droite
+  const hammer = new THREE.Group(); hammer.position.set(3.15, 0, -1.3); bossUpper.add(hammer);
+  seg(hammer, [0, 0.2, 0], [0, 6, 0], 0.16, 0.16, dark);
+  add(hammer, new THREE.BoxGeometry(2.0, 1.1, 1.1), armor, [0, 6.4, 0]);
+  add(hammer, new THREE.BoxGeometry(2.08, 0.18, 1.18), gold, [0, 6.95, 0]);
+  add(hammer, new THREE.BoxGeometry(2.08, 0.18, 1.18), gold, [0, 5.85, 0]);
+  add(hammer, new THREE.BoxGeometry(0.3, 0.9, 1.16), runeMat, [0, 6.4, 0]);
+  // flèche au sol : direction du boss
+  const tri = new THREE.Mesh(new THREE.CircleGeometry(1, 3), new THREE.MeshBasicMaterial({ color: COL.gold, transparent: true, opacity: 0.85 }));
+  tri.rotation.set(-Math.PI / 2, 0, Math.PI / 2); tri.position.set(0, 0.06, -3.7); boss.add(tri);
+})();
+function bossIdle(sec) {
+  bossUpper.position.y = Math.sin(sec * 1.4) * 0.12;
+  bossHands.forEach((h, k) => { h.rotation.x = Math.sin(sec * 1.4 + k) * 0.1; });
+  runeMat.emissiveIntensity = 0.7 + Math.sin(sec * 2.2) * 0.3;
+}
+
+// joueurs : modèle Soldier animé (repos / course), teinté rouge ou bleu ; capsule en attendant le chargement
 const players = PN.map((name, i) => {
-  const g = new THREE.Group(); g.scale.setScalar(1.35); scene.add(g);
+  const g = new THREE.Group(); scene.add(g);
+  const fig = new THREE.Group(); fig.scale.setScalar(1.35); g.add(fig);
   const mat = new THREE.MeshStandardMaterial({ color: '#ddd', roughness: 0.5 });
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.5, 1.3, 14), mat); body.position.y = 0.65; g.add(body);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.33, 14, 10), mat); head.position.y = 1.6; g.add(head);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.5, 1.3, 14), mat); body.position.y = 0.65; fig.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.33, 14, 10), mat); head.position.y = 1.6; fig.add(head);
   const baseMat = new THREE.MeshBasicMaterial({ color: '#ddd', transparent: true, opacity: 0.9, side: THREE.DoubleSide });
-  const base = new THREE.Mesh(new THREE.RingGeometry(0.62, 0.85, 32), baseMat); base.rotation.x = -Math.PI / 2; base.position.y = 0.06; g.add(base);
-  const label = sprite(name, 34, i === 3 || i === 7 ? '#8fd3bf' : '#ece5d7'); label.position.y = 2.5; g.add(label);
-  return { g, mat, baseMat, label, c: null };
+  const base = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.15, 32), baseMat); base.rotation.x = -Math.PI / 2; base.position.y = 0.06; g.add(base);
+  const label = sprite(name, 34, i === 3 || i === 7 ? '#8fd3bf' : '#ece5d7'); label.position.y = 3.2; g.add(label);
+  return { g, fig, mat, baseMat, label, c: null, tint: null, mixer: null, act: null };
 });
+function tintPlayer(P, c) {
+  P.mat.color.set(col(c)); P.mat.emissive.set(col(c)).multiplyScalar(0.3); P.baseMat.color.set(col(c));
+  if (P.tint) P.tint.forEach(m => { m.color.set('#ffffff').lerp(new THREE.Color(col(c)), 0.45); m.emissive.set(col(c)); m.emissiveIntensity = 0.32; });
+}
+if (THREE.GLTFLoader && THREE.SkeletonUtils) {
+  new THREE.GLTFLoader().load('models/Soldier.glb', gl => {
+    const box = new THREE.Box3().setFromObject(gl.scene), k = 2.3 / ((box.max.y - box.min.y) || 1.8);
+    const clip = n => gl.animations.find(a => a.name === n);
+    players.forEach(P => {
+      const m = THREE.SkeletonUtils.clone(gl.scene); m.scale.setScalar(k);
+      P.tint = [];
+      m.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.castShadow = true; o.frustumCulled = false; P.tint.push(o.material); } });
+      P.g.add(m); P.fig.visible = false;
+      P.mixer = new THREE.AnimationMixer(m);
+      P.act = { idle: P.mixer.clipAction(clip('Idle')), run: P.mixer.clipAction(clip('Run')) };
+      P.act.idle.play(); P.act.run.play(); P.act.run.setEffectiveWeight(0);
+      P.mixer.update(Math.random() * 2);
+      P.c = null;
+    });
+    if (S) apply(Math.min(t, S.dur));
+  }, undefined, e => console.warn('Soldier.glb', e));
+}
 
 /* effets */
 const fxRoot = new THREE.Group(); scene.add(fxRoot);
@@ -619,12 +705,15 @@ function airY(i, tt) {
 }
 
 function apply(tt) {
+  const [bx, bz, br] = bossAt(S.boss, tt);
   S.pl.forEach((p, i) => {
     const P = players[i], [x, z] = posAt(p, tt), c = lastAt(p.cols, tt);
+    const [px, pz] = posAt(p, Math.max(0, tt - 0.12)), dx = x - px, dz = z - pz, moving = Math.hypot(dx, dz) > 0.05;
     P.g.position.set(x, airY(i, tt), z);
-    if (P.c !== c) { P.c = c; P.mat.color.set(col(c)); P.mat.emissive.set(col(c)).multiplyScalar(0.3); P.baseMat.color.set(col(c)); }
+    P.g.rotation.y = moving ? Math.atan2(dx, dz) : Math.atan2(bx - x, bz - z);   // court vers sa destination, sinon regarde le boss
+    if (P.act) { P.act.run.setEffectiveWeight(moving ? 1 : 0); P.act.idle.setEffectiveWeight(moving ? 0 : 1); }
+    if (P.c !== c) { P.c = c; tintPlayer(P, c); }
   });
-  const [bx, bz, br] = bossAt(S.boss, tt);
   boss.position.set(bx, 0, bz); boss.rotation.y = -rad(br);
   coreMat.emissive.set(col(lastAt(S.boss.cols, tt)));
   FX.forEach(F => updFx(F, tt));
@@ -664,7 +753,7 @@ $('scrub').oninput = e => { t = e.target.value / 1000 * S.dur; setPlay(false); a
 $('speed').onchange = e => { speed = +e.target.value; };
 $('tglLabels').onchange = e => players.forEach(P => P.label.visible = e.target.checked);
 $('tglClock').onchange = e => { dial.visible = e.target.checked; };
-const CAMS = { orbit: [[0, 27, 29], [0, 0, 2]], top: [[0, 55, 0.01], [0, 0, 0]], iso: [[25, 23, 25], [0, 0, 0]], boss: [[0, 10, 15], [0, 1, -8]] };
+const CAMS = { orbit: [[0, 23, 25], [0, 1, 1]], top: [[0, 55, 0.01], [0, 0, 0]], iso: [[25, 23, 25], [0, 0, 0]], boss: [[0, 10, 15], [0, 1, -8]] };
 function setCam(k) {
   const [p, tg] = CAMS[k]; camera.position.set(...p); controls.target.set(...tg); controls.update();
   document.querySelectorAll('[data-cam]').forEach(b => b.classList.toggle('on', b.dataset.cam === k));
@@ -700,6 +789,8 @@ function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (!inView || document.hidden) return;
   if (playing) { t += dt * speed; if (t > S.dur + 1) t = 0; apply(Math.min(t, S.dur)); }
+  players.forEach(P => P.mixer && P.mixer.update(playing ? dt * speed : 0));
+  bossIdle(now / 1000);
   resize(); controls.update(); renderer.render(scene, camera);
 }
 const start = (location.hash.match(/^#sim-(.+)$/) || [])[1];
