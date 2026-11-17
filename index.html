@@ -169,6 +169,46 @@ img{max-width:100%;display:block}
 .src{display:grid;gap:8px;color:#cfc6b6;font-size:.9rem}
 footer{border-top:1px solid var(--line);margin-top:60px;padding-block:24px 40px;color:var(--muted);font-size:.8rem}
 
+/* arène 3D */
+.stage{position:relative;aspect-ratio:16/9;max-height:78vh;width:100%;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#07070b}
+.stage canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.hud{position:absolute;inset:0 0 auto 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px;pointer-events:none;flex-wrap:wrap}
+.hud>*{pointer-events:auto}
+.hud-title{display:grid;gap:2px;background:color-mix(in srgb,var(--bg) 72%,transparent);border:1px solid var(--line);border-radius:10px;padding:8px 12px;backdrop-filter:blur(6px)}
+.hud-title span{font:600 .66rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.hud-title b{font:700 1.1rem var(--f-display);color:#f3e7cf}
+.seg{display:flex;gap:4px;background:color-mix(in srgb,var(--bg) 72%,transparent);border:1px solid var(--line);border-radius:10px;padding:4px;backdrop-filter:blur(6px)}
+.btn.sm{padding:5px 9px;font-size:.78rem}
+.btn.on{background:var(--gold);color:#1a140a;border-color:var(--gold)}
+.sim-clock{position:absolute;top:70px;left:50%;transform:translateX(-50%);font:700 1.1rem var(--f-mono);color:var(--blood);background:color-mix(in srgb,var(--bg) 80%,transparent);border:1px solid #4a1d1f;border-radius:8px;padding:4px 12px}
+.caption{position:absolute;left:12px;right:12px;bottom:12px;background:color-mix(in srgb,var(--bg) 80%,transparent);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:.95rem;color:#f0e6d2;backdrop-filter:blur(6px);pointer-events:none}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.ctrl input[type=range]{flex:1;min-width:140px;accent-color:var(--gold)}
+.tnum{font:600 .8rem var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums;min-width:52px}
+.tg{display:inline-flex;gap:6px;align-items:center;font-size:.84rem;color:var(--muted);cursor:pointer}
+.tg input{accent-color:var(--gold)}
+.sim-chips{display:grid;gap:8px;margin-top:14px}
+.chipg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chipg>span{font:600 .66rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);min-width:76px}
+.chip{font:600 .78rem var(--f-mono);color:var(--muted);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;cursor:pointer}
+.chip:hover{color:var(--ink);border-color:var(--muted)}
+.chip.on{background:var(--gold);color:#1a140a;border-color:var(--gold)}
+.sim-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:.78rem;color:var(--muted)}
+.sim-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.sim-legend .keys{flex-basis:100%;font-family:var(--f-mono);font-size:.72rem}
+.sim-steps{list-style:none;margin:14px 0 8px;padding:0;display:grid;gap:4px}
+.sim-steps button{all:unset;cursor:pointer;display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;width:100%;box-sizing:border-box;padding:7px 10px;border-radius:8px;color:#cfc6b6;font-size:.88rem}
+.sim-steps button:hover{background:var(--surface)}
+.sim-steps button:focus-visible{outline:2px solid var(--gold)}
+.sim-steps b{font:600 .76rem var(--f-mono);color:var(--muted);padding-top:2px}
+.sim-steps li.on button{background:var(--surface2);color:#fff3d9}
+.sim-steps li.on b{color:var(--gold)}
+.sim3d{font:600 .74rem var(--f-mono);color:var(--soul);background:none;border:1px solid color-mix(in srgb,var(--soul) 45%,transparent);border-radius:6px;padding:3px 8px;cursor:pointer}
+.sim3d:hover{background:color-mix(in srgb,var(--soul) 14%,transparent)}
+.mhead .sim3d{margin-left:auto}
+.mhead .sim3d+.vlink{margin-left:0}
+@media (max-width:640px){.stage{aspect-ratio:4/5}.sim-clock{top:124px}.caption{font-size:.85rem}.seg .btn{padding:4px 7px}}
+
 /* lightbox */
 dialog{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0;border-radius:12px;max-width:min(1280px,96vw);width:100%}
 dialog::backdrop{background:rgba(5,5,8,.88);backdrop-filter:blur(4px)}
@@ -199,7 +239,7 @@ dialog button{margin-left:auto}
   <div class="wrap row">
     <a class="brand" href="#top"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="#d4a85a" stroke-width="2"/><path d="M16 5v22M9 12h14" stroke="#d4a85a" stroke-width="2"/></svg><span>Mordum EX</span></a>
     <nav class="nav" id="nav">
-      <a href="#prep">Prépa</a><a href="#systeme">Système</a><a href="#mechas">Méchas</a><a href="#post0">Barre 0</a><a href="#patterns">Patterns</a><a href="#sidereals">Sidereals</a><a href="#sources">Sources</a>
+      <a href="#prep">Prépa</a><a href="#systeme">Système</a><a href="#arena3d">Arène 3D</a><a href="#mechas">Méchas</a><a href="#post0">Barre 0</a><a href="#patterns">Patterns</a><a href="#sidereals">Sidereals</a><a href="#sources">Sources</a>
     </nav>
   </div>
   <div class="bosshp" aria-hidden="true"><i id="hpFill" style="width:100%"></i><b id="hpTxt">×500</b></div>
@@ -254,6 +294,45 @@ dialog button{margin-left:auto}
   <div id="sysList"></div>
 </section>
 
+<section class="chapter wrap" id="arena3d">
+  <div class="chapter-head">
+    <div class="kicker">Schémas animés</div>
+    <h2>Arène en 3D</h2>
+    <p class="lead">Chaque mécanique rejouée sur un cadran : 12 h, c'est là où le boss regarde au départ. Fais glisser pour tourner la caméra, molette pour zoomer, et choisis une méca sous l'arène.</p>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="arena" aria-label="Arène 3D de Mordum avec la mécanique sélectionnée"></canvas>
+    <div class="hud">
+      <div class="hud-title"><span id="simGroup">—</span><b id="simName">Chargement…</b></div>
+      <div class="seg" role="group" aria-label="Caméra">
+        <button class="btn sm on" data-cam="orbit" type="button" title="Libre (1)">Libre</button>
+        <button class="btn sm" data-cam="top" type="button" title="Dessus (2)">Dessus</button>
+        <button class="btn sm" data-cam="iso" type="button" title="Iso (3)">Iso</button>
+        <button class="btn sm" data-cam="boss" type="button" title="Derrière le boss (4)">Boss</button>
+      </div>
+    </div>
+    <div class="sim-clock" id="simClock" hidden></div>
+    <div class="caption" id="simCap" aria-live="polite">Chargement de l'arène…</div>
+  </div>
+  <div class="ctrl">
+    <button class="btn" id="play" type="button">❚❚ Pause</button>
+    <button class="btn" id="restart" type="button">↺ Rejouer</button>
+    <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Moment de la mécanique">
+    <span class="tnum" id="tLbl">0.0 s</span>
+    <select id="speed" class="btn sm" aria-label="Vitesse"><option value="0.5">×0.5</option><option value="1" selected>×1</option><option value="1.5">×1.5</option><option value="2">×2</option></select>
+    <label class="tg"><input type="checkbox" id="tglLabels" checked> Noms</label>
+    <label class="tg"><input type="checkbox" id="tglClock" checked> Cadran</label>
+  </div>
+  <div class="sim-chips" id="simChips"></div>
+  <div class="sim-legend">
+    <span><i style="background:var(--red)"></i>Joueur / zone rouge</span><span><i style="background:var(--blue)"></i>Joueur / zone bleue</span><span><i style="background:#ff3b3b"></i>Mortel</span><span><i style="background:var(--warn)"></i>Flaque à venir / foudre</span><span><i style="background:#c39a3a"></i>Flaque posée</span><span><i style="background:var(--safe)"></i>Orbe à staggerer</span><span><i style="background:#030304;border:1px solid var(--line)"></i>Sol cassé</span>
+    <span class="keys">Clavier : Espace pause · ←/→ ±0,5 s · [ ] méca préc./suiv. · 1–4 caméra</span>
+  </div>
+  <p class="note" id="simNote"></p>
+  <ol class="sim-steps" id="steps"></ol>
+  <p class="note">Schémas reconstitués à partir de la narration et des images de la vidéo : les positions sont indicatives, pas des coordonnées exactes du jeu.</p>
+</section>
+
 <section class="chapter wrap" id="mechas">
   <div class="chapter-head">
     <div class="kicker">De ×475 aux ruptures finales</div>
@@ -270,6 +349,7 @@ dialog button{margin-left:auto}
     <div class="kicker">Barre 0 · <a href="https://youtu.be/Qnmv4rFPgl0?t=820" target="_blank" rel="noopener">13:40</a></div>
     <h2>Après la barre 0</h2>
     <p class="lead">Même ouverture que le raid d'origine, puis une suite fixe. Les lignes de la fin se jouent au chrono d'enrage (광폭화까지, sous la barre de vie).</p>
+    <p><button class="sim3d" type="button" data-sim="lignes">◈ Voir les lignes en 3D</button></p>
   </div>
   <div class="post0">
     <ol class="steps">
@@ -471,7 +551,7 @@ const tips = list => `<ul class="tips">${list.map(([k,h])=>`<li class="${k}">${h
 const entry = ([hp,rail,t,kind,kick,title,imgs,tl],i) => `
   <article class="mech ${kind}" id="m-${rail}" data-hp="${hp}">
     <div class="mech-txt">
-      <div class="mhead"><span class="hp">${hp}</span><span class="tag">${kick}</span><a class="vlink" href="${V(t)}" target="_blank" rel="noopener" aria-label="Voir dans la vidéo à ${mmss(t)}">▶ ${mmss(t)}</a></div>
+      <div class="mhead"><span class="hp">${hp}</span><span class="tag">${kick}</span><button class="sim3d" type="button" data-sim="${rail}">◈ Voir en 3D</button><a class="vlink" href="${V(t)}" target="_blank" rel="noopener" aria-label="Voir dans la vidéo à ${mmss(t)}">▶ ${mmss(t)}</a></div>
       <h3>${title}</h3>
       ${tips(tl)}
     </div>
@@ -486,7 +566,7 @@ document.getElementById('patList').innerHTML = PATS.map(([title,t,cls,imgs,tl]) 
   <article class="pcard ${cls}">
     <div class="shots">${shots(imgs.slice(0,1).map(([f])=>[f,title]))}</div>
     <div class="pbody">
-      <div class="mhead"><span class="tag">${cls==='p3'?'Phase 3':'Pattern'}</span><a class="vlink" href="${V(t)}" target="_blank" rel="noopener">▶ ${mmss(t)}</a></div>
+      <div class="mhead"><span class="tag">${cls==='p3'?'Phase 3':'Pattern'}</span>${cls==='p3'?'<button class="sim3d" type="button" data-sim="chain">◈ Voir en 3D</button>':''}<a class="vlink" href="${V(t)}" target="_blank" rel="noopener">▶ ${mmss(t)}</a></div>
       <h3>${title}</h3>
       ${tips(tl)}
       ${imgs.length>1?`<div class="shots">${shots(imgs.slice(1).map(([f])=>[f,title]))}</div>`:''}
@@ -523,5 +603,8 @@ document.querySelectorAll('.mech[data-hp]').forEach(m => io.observe(m));
 const p0 = document.getElementById('post0');
 new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { fill.style.width='0%'; txt.textContent='×0'; } }), {rootMargin:'-45% 0px -50% 0px'}).observe(p0);
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="arena.js"></script>
 </body>
 </html>
