@@ -585,8 +585,15 @@ function tintPlayer(P, c) {
   P.mat.color.set(col(c)); P.mat.emissive.set(col(c)).multiplyScalar(0.3); P.baseMat.color.set(col(c));
   if (P.tint) P.tint.forEach(m => { m.color.set('#ffffff').lerp(new THREE.Color(col(c)), 0.45); m.emissive.set(col(c)); m.emissiveIntensity = 0.32; });
 }
+// modèle chargé en arrière-plan depuis un script base64 (les .glb ne sont pas servis partout)
 if (THREE.GLTFLoader && THREE.SkeletonUtils) {
-  new THREE.GLTFLoader().load('models/Soldier.glb', gl => {
+  const sc = document.createElement('script'); sc.src = 'models/soldier-glb.js'; sc.async = true;
+  sc.onerror = () => console.warn('soldier-glb.js introuvable');
+  sc.onload = () => { try { loadSoldier(Uint8Array.from(atob(window.SOLDIER_GLB), ch => ch.charCodeAt(0)).buffer); } catch (e) { console.warn('Soldier', e); } };
+  document.head.appendChild(sc);
+}
+function loadSoldier(bin) {
+  new THREE.GLTFLoader().parse(bin, '', gl => {
     const box = new THREE.Box3().setFromObject(gl.scene), k = 2.3 / ((box.max.y - box.min.y) || 1.8);
     const clip = n => gl.animations.find(a => a.name === n);
     players.forEach(P => {
@@ -601,7 +608,7 @@ if (THREE.GLTFLoader && THREE.SkeletonUtils) {
       P.c = null;
     });
     if (S) apply(Math.min(t, S.dur));
-  }, undefined, e => console.warn('Soldier.glb', e));
+  }, e => console.warn('Soldier.glb', e));
 }
 
 /* effets */
